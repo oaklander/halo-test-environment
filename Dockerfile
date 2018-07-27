@@ -11,7 +11,6 @@ CMD py.test --cov=builder
 
 ##########
 
-
 FROM docker.io/halotools/python-sdk:ubuntu-16.04_sdk-1.0.6
 MAINTAINER toolbox@cloudpassage.com
 
@@ -21,6 +20,6 @@ COPY app /app/
 
 WORKDIR /app
 
-# ENTRYPOINT /bin/sh -c /app/application.py
+ENTRYPOINT ["/usr/bin/python", "/app/application.py"]
 
-# CMD
+CMD ["-h"]

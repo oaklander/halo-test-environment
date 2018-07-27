@@ -34,7 +34,8 @@ class ConfigManager(object):
                     self.aws_secret,
                     self.aws_key_name,
                     self.halo_agent_key,
-                    self.env_name]:
+                    self.env_name,
+                    self.aws_region]:
             if env == "UNDEFINED":
                 return False
             else:

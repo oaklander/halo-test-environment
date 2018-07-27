@@ -1,5 +1,6 @@
 import boto3
 import os
+import sys
 import time
 
 
@@ -58,7 +59,8 @@ class CloudFormation(object):
         region = config["aws_region"]
         status = "INCOMPLETE"
         bad_stats = ['CREATE_FAILED', 'ROLLBACK_IN_PROGRESS',
-                     'ROLLBACK_FAILED', 'ROLLBACK_COMPLETE']
+                     'ROLLBACK_FAILED', 'ROLLBACK_COMPLETE',
+                     'DELETE_IN_PROGRESS', 'DELETE_COMPLETE']
         parameters = [
                 {'ParameterKey': 'KeyName',
                  'ParameterValue': str(config["ssh_key_name"])},
@@ -79,14 +81,14 @@ class CloudFormation(object):
         stack_id = response['StackId']
         print("Waiting for creation job to complete...")
         while status != 'CREATE_COMPLETE':
-            time.sleep(60)
+            time.sleep(20)
             response = client.describe_stacks(StackName=stack_id)
             status = response["Stacks"][0]["StackStatus"]
             if status in bad_stats:
                 print("Uh oh, something's wrong...", status)
                 success = False
                 msg = status
-                break
+                sys.exit(2)
             print("Current status: " + str(status))
         return(success, msg, stack_id)
 
