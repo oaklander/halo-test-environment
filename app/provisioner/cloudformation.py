@@ -81,7 +81,7 @@ class CloudFormation(object):
         stack_id = response['StackId']
         print("Waiting for creation job to complete...")
         while status != 'CREATE_COMPLETE':
-            time.sleep(20)
+            time.sleep(10)
             response = client.describe_stacks(StackName=stack_id)
             status = response["Stacks"][0]["StackStatus"]
             if status in bad_stats:
@@ -104,7 +104,7 @@ class CloudFormation(object):
         response = client.delete_stack(StackName=stack_id)
         print("Please wait for deletion job to complete...")
         while True:
-            time.sleep(60)
+            time.sleep(10)
             response = client.describe_stacks()
             stack_exists, stack_status = CloudFormation.get_stack_status(stack_id,
                                                                          response)
