@@ -1,5 +1,5 @@
 from colorama import init as c_init
-from colorama import Fore, Back, Style
+from colorama import Fore, Style
 
 
 class Utility(object):

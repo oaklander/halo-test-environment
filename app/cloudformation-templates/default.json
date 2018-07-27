@@ -295,7 +295,7 @@
       },
       "CreationPolicy": {
         "ResourceSignal": {
-          "Timeout": "PT12M"
+          "Timeout": "PT15M"
         }
       },
       "UpdatePolicy": {
@@ -397,8 +397,8 @@
                       "if [ $? -eq 0 ]; then\n",
                       "  echo \"[cloudpassage]\" > /etc/yum.repos.d/cloudpassage.repo\n",
                       "  echo \"name=CloudPassage\" >> /etc/yum.repos.d/cloudpassage.repo\n",
-                      "  echo \"baseurl=http://packages.cloudpassage.com/redhat/$basearch\" >> /etc/yum.repos.d/cloudpassage.repo\n",
-                      "  echo \"gpgcheck=1\" >> /etc/yum.repos.d/cloudpassage.repo",
+                      "  echo \"baseurl=http://packages.cloudpassage.com/redhat/\\$basearch\" >> /etc/yum.repos.d/cloudpassage.repo\n",
+                      "  echo \"gpgcheck=1\" >> /etc/yum.repos.d/cloudpassage.repo\n",
                       "  rpm --import http://packages.cloudpassage.com/cloudpassage.packages.key\n",
                       "  yum check-update\n",
                       "  yum -y install cphalo\n",
@@ -481,7 +481,16 @@
               [
                 "#!/bin/bash -xe\n",
                 "if [ -e /usr/bin/rpm ]; then\n",
-                "  rpm -Uvh https://s3.amazonaws.com/cloudformation-examples/aws-cfn-bootstrap-latest.amzn1.noarch.rpm\n",
+                "  rpm -Uvh https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm || echo \"Not installing EPEL\" \n",
+                "  yum install -y python-pip pystache python-daemon\n",
+                "  pip install https://s3.amazonaws.com/cloudformation-examples/aws-cfn-bootstrap-latest.tar.gz || echo \"Not installing aws-cfn-bootstrap\"\n",
+                "  ln -s /usr/init/redhat/cfn-hup /etc/rc.d/init.d/cfn-hup\n",
+                "  mkdir -p /opt/aws/bin/\n",
+                "  ln -s /usr/bin/cfn-hup /opt/aws/bin/cfn-hup\n",
+                "  chmod 755 /opt/aws/bin/cfn-hup\n",
+                "  chmod 755 /etc/rc.d/init.d/cfn-hup\n",
+                "  chkconfig --add cfn-hup  \n",
+                "  chkconfig cfn-hup on  \n",
                 "else\n",
                 "  apt-get update && apt-get install -y python-pip\n",
                 "  pip install https://s3.amazonaws.com/cloudformation-examples/aws-cfn-bootstrap-latest.tar.gz\n",
@@ -489,30 +498,30 @@
                 "  chmod 755 /etc/init.d/cfn-hup  \n",
                 "  update-rc.d cfn-hup defaults  \n",
                 "  update-rc.d cfn-hup enable  \n",
-                "  cfn-init -v ",
-                "           --stack ",
+                "fi\n",
+                "cfn-init -v ",
+                "         --stack ",
                 {
                   "Ref": "AWS::StackName"
                 },
-                "           --resource ServerLaunchConfig ",
-                "           --configsets base_config ",
-                "           --region ",
+                "         --resource ServerLaunchConfig ",
+                "         --configsets base_config ",
+                "         --region ",
                 {
                   "Ref": "AWS::Region"
                 },
                 "\n",
-                "  cfn-signal -e $? ",
-                "           --stack ",
+                "cfn-signal -e $? ",
+                "         --stack ",
                 {
                   "Ref": "AWS::StackName"
                 },
-                "           --resource ServerAutoScalingGroup ",
-                "           --region ",
+                "         --resource ServerAutoScalingGroup ",
+                "         --region ",
                 {
                   "Ref": "AWS::Region"
                 },
-                "\n",
-                "fi"
+                "\n"
               ]
             ]
           }

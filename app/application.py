@@ -6,7 +6,6 @@ import sys
 
 
 def main():
-    print("Starting provisioning tool.")
     dyn_config = provisioner.ConfigManager()
     parser = argparse.ArgumentParser()
     parser.add_argument("mode", help="(provision|deprovision)")
@@ -16,7 +15,10 @@ def main():
     elif args.mode == "deprovision":
         deprovision(dyn_config)
     else:
-        print("Valid modes: 'provision', 'deprovision'")
+        msg_str = "Valid modes: 'provision', 'deprovision'"
+        msg = provisioner.Utility()
+        msg.print_aws_status_message(msg_str)
+        sys.exit(3)
 
 
 def provision(dyn_config):
@@ -30,6 +32,7 @@ def provision(dyn_config):
     except botocore.exceptions.ClientError as e:
         msg_str = str(e)
         msg.print_error_message(msg_str)
+        sys.exit(1)
     except Exception as e:
         msg_str = str("Error in CloudFormation provisioning process!!!\n" +
                       "    Please run the teardown routine (refer to README.md)\n" +
@@ -51,12 +54,7 @@ def deprovision(dyn_config):
     except botocore.exceptions.ClientError as e:
         msg_str = str(e)
         msg.print_error_message(msg_str)
-    except:
-        msg_str = str("Error in CloudFormation provisioning process!!!\n" +
-                      "    Please run the teardown routine (refer to README.md)\n" +
-                      "    or manually de-provision by logging into your AWS account," +
-                      " navigating to the CloudFormation module and deleting this stack.")
-        msg.print_error_message(msg_str)
+        sys.exit(1)
 
 
 if __name__ == "__main__":
