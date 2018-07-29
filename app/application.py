@@ -8,10 +8,10 @@ import sys
 
 def main():
     start_time = datetime.datetime.now()
-    dyn_config = provisioner.ConfigManager()
     parser = argparse.ArgumentParser()
     parser.add_argument("mode", help="(provision|deprovision)")
     args = parser.parse_args()
+    dyn_config = provisioner.ConfigManager(args.mode)
     if args.mode == "provision":
         provision(dyn_config)
     elif args.mode == "deprovision":
@@ -30,8 +30,8 @@ def provision(dyn_config):
     msg = provisioner.Utility()
     try:
         msg.print_aws_status_message("Provisioning AWS resources")
-        cloudformation = provisioner.CloudFormation(dyn_config)
-        cloudformation.provision()
+        cf = provisioner.CloudFormation(dyn_config)
+        cf.provision()
         msg.print_aws_status_message("AWS provisioning process complete!")
     except botocore.exceptions.ClientError as e:
         msg_str = str(e)
@@ -49,10 +49,11 @@ def deprovision(dyn_config):
     print("Starting deprovisioning.")
     msg = provisioner.Utility()
     try:
-        cloudformation = provisioner.CloudFormation(dyn_config)
-        status_msg = "De-provisioning AWS stack %s." % cloudformation.env_name
+        cf = provisioner.CloudFormation(dyn_config)
+        stack_name = cf.config.environment_name
+        status_msg = "De-provisioning AWS stack %s." % stack_name
         msg.print_aws_status_message(status_msg)
-        cloudformation.deprovision()
+        cf.deprovision()
     except botocore.exceptions.ClientError as e:
         msg_str = str(e)
         msg.print_error_message(msg_str)
