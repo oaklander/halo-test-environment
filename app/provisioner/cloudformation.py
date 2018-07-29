@@ -6,42 +6,35 @@ import time
 
 class CloudFormation(object):
     def __init__(self, dyn_config):
-        self.env_name = dyn_config.env_name
-        self.aws_key = dyn_config.aws_key
-        self.aws_secret = dyn_config.aws_secret
-        self.aws_region = dyn_config.aws_region
-        self.ssh_key_name = dyn_config.aws_key_name
-        self.halo_agent_key = dyn_config.halo_agent_key
-        self.halo_group_tag = dyn_config.halo_group_tag
-        self.ami_id = dyn_config.ami_id
-        self.server_count = dyn_config.server_count
+        self.config = dyn_config
         self.this_file_dir = os.path.dirname(os.path.abspath(__file__))
         self.template_dir = os.path.join(self.this_file_dir,
                                          "../cloudformation-templates")
         self.provision_template = os.path.join(self.template_dir,
                                                "default.json")
-        self.augment_template = os.path.join(self.template_dir, "default.json")
 
     def provision(self):
+        """Wrap the stack provisioning process."""
         config = {}
-        config["env_name"] = self.env_name
-        config["aws_key"] = self.aws_key
-        config["aws_secret"] = self.aws_secret
-        config["aws_region"] = self.aws_region
-        config["ssh_key_name"] = self.ssh_key_name
-        config["halo_agent_key"] = self.halo_agent_key
-        config["halo_group_tag"] = self.halo_group_tag
-        config["ami_id"] = self.ami_id
-        config["server_count"] = self.server_count
+        config["environment_name"] = self.config.environment_name
+        config["aws_key"] = self.config.aws_key
+        config["aws_secret"] = self.config.aws_secret
+        config["aws_region"] = self.config.aws_region
+        config["ssh_key_name"] = self.config.ssh_key_name
+        config["halo_agent_key"] = self.config.halo_agent_key
+        config["halo_group_tag"] = self.config.halo_group_tag
+        config["ami_id"] = self.config.ami_id
+        config["server_count"] = self.config.server_count
         template = CloudFormation.load_template_file(self.provision_template)
         CloudFormation.create_stack(template, config)
 
     def deprovision(self):
+        """Wrap the stack deprovisioning process."""
         config = {}
-        config["aws_key"] = self.aws_key
-        config["aws_secret"] = self.aws_secret
-        config["aws_region"] = self.aws_region
-        CloudFormation.teardown_stack(config, self.env_name)
+        config["aws_key"] = self.config.aws_key
+        config["aws_secret"] = self.config.aws_secret
+        config["aws_region"] = self.config.aws_region
+        CloudFormation.teardown_stack(config, self.config.environment_name)
 
     @classmethod
     def load_template_file(cls, template_file):
@@ -53,10 +46,6 @@ class CloudFormation(object):
     def create_stack(cls, template, config):
         success = True
         msg = ""
-        env_name = config["env_name"]
-        az_key = config["aws_key"]
-        secret = config["aws_secret"]
-        region = config["aws_region"]
         status = "INCOMPLETE"
         bad_stats = ['CREATE_FAILED', 'ROLLBACK_IN_PROGRESS',
                      'ROLLBACK_FAILED', 'ROLLBACK_COMPLETE',
@@ -72,9 +61,11 @@ class CloudFormation(object):
                  'ParameterValue': str(config["ami_id"])},
                 {'ParameterKey': 'ServerCount',
                  'ParameterValue': str(config["server_count"])}, ]
-        session = CloudFormation.create_session(az_key, secret, region)
+        session = CloudFormation.create_session(config["aws_key"],
+                                                config["aws_secret"],
+                                                config["aws_region"])
         client = session.client('cloudformation')
-        response = client.create_stack(StackName=env_name,
+        response = client.create_stack(StackName=config["environment_name"],
                                        TemplateBody=template,
                                        Parameters=parameters,
                                        Capabilities=["CAPABILITY_IAM"])
@@ -96,26 +87,26 @@ class CloudFormation(object):
     def teardown_stack(cls, config, stack_id):
         success = True
         msg = ""
-        az_key = config["aws_key"]
-        secret = config["aws_secret"]
-        region = config["aws_region"]
-        session = CloudFormation.create_session(az_key, secret, region)
+        session = CloudFormation.create_session(config["aws_key"],
+                                                config["aws_secret"],
+                                                config["aws_region"])
         client = session.client('cloudformation')
-        response = client.delete_stack(StackName=stack_id)
-        print("Please wait for deletion job to complete...")
+        client.delete_stack(StackName=stack_id)
+        print("Please wait for deletion to complete...")
         while True:
             time.sleep(10)
             response = client.describe_stacks()
-            stack_exists, stack_status = CloudFormation.get_stack_status(stack_id,
-                                                                         response)
-            if stack_exists is False:
+            exists, status = CloudFormation.get_stack_status(stack_id,
+                                                             response)
+            if exists is False:
                 break
-            print("Current status: " + str(stack_status))
+            print("Current status: " + str(status))
         print("Stack no longer exists, deletion job complete.")
         return(success, msg)
 
     @classmethod
     def get_stack_status(cls, stack_id, response):
+        """Return stack existence and status information."""
         stack_exists = False
         stack_status = "NON-EXISTENT"
         stacks = response["Stacks"]
@@ -129,6 +120,7 @@ class CloudFormation(object):
 
     @classmethod
     def create_session(cls, key, secret, region):
+        """Return AWS session object."""
         aws_key = key
         aws_secret = secret
         aws_region = region

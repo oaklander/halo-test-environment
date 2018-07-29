@@ -1,4 +1,7 @@
 # halo-test-environment
+[![Build Status](https://travis-ci.org/cloudpassage/halo-test-environment.svg?branch=master)](https://travis-ci.org/cloudpassage/halo-test-environment)
+[![Test Coverage](https://api.codeclimate.com/v1/badges/ece9d8ccf9c487fcc9e1/test_coverage)](https://codeclimate.com/github/cloudpassage/halo-test-environment/test_coverage)
+[![Maintainability](https://api.codeclimate.com/v1/badges/ece9d8ccf9c487fcc9e1/maintainability)](https://codeclimate.com/github/cloudpassage/halo-test-environment/maintainability)
 
 **This is not an officially-supported CloudPassage tool. Use at your own risk!**
 
@@ -21,7 +24,7 @@ These environment variables are required for operation:
 | CLI_CMD               | Base-64 encoded script to run on boot. (optional)  |
 | HALO_AGENT_KEY        | Halo agent registration key.                       |
 | ENVIRONMENT_NAME      | Name of environment. Must be unique.               |
-| HALO_GROUP_TAG        | Halo agent group provisioning tag.                 |
+| HALO_GROUP_TAG        | Halo group provisioning tag. Defaults to `test`.   |
 | SERVER_COUNT          | How many instances? Optional. Default 1, Max 10.   |
 
 
