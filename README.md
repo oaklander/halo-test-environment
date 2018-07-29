@@ -1,4 +1,5 @@
 # halo-test-environment
+
 [![Build Status](https://travis-ci.org/cloudpassage/halo-test-environment.svg?branch=master)](https://travis-ci.org/cloudpassage/halo-test-environment)
 [![Test Coverage](https://api.codeclimate.com/v1/badges/ece9d8ccf9c487fcc9e1/test_coverage)](https://codeclimate.com/github/cloudpassage/halo-test-environment/test_coverage)
 [![Maintainability](https://api.codeclimate.com/v1/badges/ece9d8ccf9c487fcc9e1/maintainability)](https://codeclimate.com/github/cloudpassage/halo-test-environment/maintainability)
