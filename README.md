@@ -36,7 +36,7 @@ docker build -t halo-test-environment .
 
 ### Provisioning Workloads
 
-    ```shell
+```shell
     docker run -it --rm \
     -e "AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}" \
     -e "AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}" \
@@ -50,18 +50,18 @@ docker build -t halo-test-environment .
     -e "SERVER_COUNT=${SERVER_COUNT}" \
     halo-test-environment \
     build
-    ```
+```
 
 A non-zero exit indicates that instance instantiation failed.
 
 
 ### Deprovisioning workloads
 
-    ```shell
+```shell
     docker run -it --rm \
     -e "AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}" \
     -e "AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}" \
     -e "ENVIRONMENT_NAME=${ENVIRONMENT_NAME}"
     halo-test-environment \
     deprovision
-    ```
+```
