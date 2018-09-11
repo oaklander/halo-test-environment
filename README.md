@@ -50,7 +50,7 @@ docker build -t halo-test-environment .
     -e "HALO_GROUP_TAG=${HALO_GROUP_TAG}" \
     -e "SERVER_COUNT=${SERVER_COUNT}" \
     halo-test-environment \
-    build
+    provision
 ```
 
 A non-zero exit indicates that instance instantiation failed.
